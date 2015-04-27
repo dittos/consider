@@ -72,7 +72,7 @@ class ReviewSessionSidebar extends React.Component {
         if (tree.files) {
             for (let file of tree.files) {
                 const path = getDisplayPath(file);
-                els.push(<Block key={path}><span onClick={() => this.props.onSelect(file)} style={getTreeFileStyle(file)}>{path.split('/').pop()}</span></Block>);
+                els.push(<Block key={path}><Link to="review-session" params={{id: this.props.reviewSession.id}} query={{path: path}} style={getTreeFileStyle(file)}>{path.split('/').pop()}</Link></Block>);
             }
         }
         return <Block marginLeft="10px">{els}</Block>;
@@ -167,10 +167,7 @@ class ReviewSessionDiff extends React.Component {
 class ReviewSessionRoute extends React.Component {
     constructor() {
         super();
-        this.state = {
-            data: null,
-            selectedChange: null
-        };
+        this.state = {data: null};
     }
 
     componentDidMount() {
@@ -185,25 +182,32 @@ class ReviewSessionRoute extends React.Component {
             return <div>Loading</div>;
 
         const {reviewSession, changes} = this.state.data;
+        const selectedChange = this._getSelectedChange();
         return <div>
             <h1>Review Session #{reviewSession.id}</h1>
             <p>{reviewSession.sourceBranch} &rarr; {reviewSession.targetBranch}</p>
 
             <Flex>
                 <ReviewSessionSidebar
-                    changes={changes}
-                    onSelect={this._onSelect.bind(this)} />
+                    reviewSession={reviewSession}
+                    changes={changes} />
 
-                {this.state.selectedChange &&
+                {selectedChange &&
                     <ReviewSessionDiff
                         reviewSession={reviewSession}
-                        change={this.state.selectedChange} />}
+                        change={selectedChange} />}
             </Flex>
         </div>;
     }
 
-    _onSelect(change) {
-        this.setState({selectedChange: change});
+    _getSelectedChange() {
+        const path = this.context.router.getCurrentQuery().path;
+        if (!path)
+            return null;
+        for (let change of changes) {
+            if (getDisplayPath(change) === path)
+                return change;
+        }
     }
 }
 ReviewSessionRoute.contextTypes = {
