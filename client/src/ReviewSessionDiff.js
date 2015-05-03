@@ -31,10 +31,7 @@ function splitLines(value) {
 class ReviewSessionDiff extends React.Component {
     constructor() {
         super();
-        this.state = {
-            oldBlob: null,
-            newBlob: null
-        };
+        this.state = {diff: null};
     }
 
     componentDidMount() {
@@ -46,13 +43,19 @@ class ReviewSessionDiff extends React.Component {
     }
 
     render() {
-        var diff = this._renderDiff();
+        const diff = this.state.diff;
+        if (!diff)
+            return null;
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
             </div>
             <div className="ReviewSessionDiff__content">
-                {diff.result}
+                <div className="ReviewSessionDiff__diff" ref="scrollArea">
+                    <table>
+                        <tbody>{diff.rows}</tbody>
+                    </table>
+                </div>
                 <ReviewSessionDiffNav
                     ranges={diff.ranges}
                     onScroll={this._scrollTo.bind(this)} />
@@ -61,16 +64,27 @@ class ReviewSessionDiff extends React.Component {
     }
 
     _load(props) {
-        Promise.all([props.change.newId, props.change.oldId]
-            .map(id => API.getReviewSessionBlob(props.reviewSession.id, id))
-        ).then(results => this.setState({
-            newBlob: results[0],
-            oldBlob: results[1]
-        }, () => this._scrollTo(0)));
+        Promise.all([
+            props.change.type != 'DELETE' && props.change.newId,
+            props.change.type != 'ADD' && props.change.oldId
+        ].map(id => id ? API.getReviewSessionBlob(props.reviewSession.id, id) : Promise.resolve(''))).then(results => {
+            const diff = this._renderDiff(results[1], results[0]);
+            let totalLines = 0;
+            let firstChangePos = 0, foundFirstChange = false;
+            for (let range of diff.ranges) {
+                if (range.type != RangeType.UNCHANGED)
+                    foundFirstChange = true;
+                if (!foundFirstChange)
+                    firstChangePos += range.size;
+                totalLines += range.size;
+            }
+            firstChangePos /= totalLines;
+            this.setState({diff}, () => this._scrollTo(firstChangePos));
+        });
     }
 
-    _renderDiff() {
-        const parts = diffLines(this.state.oldBlob, this.state.newBlob);
+    _renderDiff(oldBlob, newBlob) {
+        const parts = diffLines(oldBlob, newBlob);
         const rows = [];
         const ranges = [];
         let oldLineNumber = 1, newLineNumber = 1;
@@ -78,7 +92,7 @@ class ReviewSessionDiff extends React.Component {
             let part = parts[i];
             if (part.value === null)
                 continue;
-            if (part.added && parts[i + 1].removed)
+            if (part.added && parts[i + 1] && parts[i + 1].removed)
                 [part, parts[i + 1]] = [parts[i + 1], part];
             const lines = splitLines(part.value);
             ranges.push({
@@ -91,18 +105,11 @@ class ReviewSessionDiff extends React.Component {
                 rows.push(<tr className={part.added ? 'a' : part.removed ? 'r' : ''}>
                     <td className="n">{!part.added && oldLineNumber++}</td>
                     <td className="n">{!part.removed && newLineNumber++}</td>
-                    <td>{line}</td>
+                    <td className="l">{line}</td>
                 </tr>);
             }
         }
-        return {
-            ranges: ranges,
-            result: <div className="ReviewSessionDiff__diff" ref="scrollArea">
-                <table>
-                    <tbody>{rows}</tbody>
-                </table>
-            </div>
-        };
+        return {ranges, rows};
     }
 
     _scrollTo(pos) {
