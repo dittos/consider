@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+}
+
+a {
+    color: #333;
+}
+
+.mixin-vlayout {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mixin-hlayout {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.App {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    .mixin-vlayout;
+}
+
+.Nav {
+    padding: 10px;
+    background: #3f51b5;
+    color: #fff;
+}
+
+.Nav__logo {
+    margin-right: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+.ReviewSessionRoute {
+    .mixin-vlayout;
+}
+
+.ReviewSessionRoute__content {
+    .mixin-hlayout;
+}
+
+.ReviewSessionSidebar {
+    width: 25%;
+    overflow-y: auto;
+    padding: 10px 5px;
+    border-right: 1px solid #ccc;
+}
+
+.ReviewSessionSidebar__dir {
+    font-weight: bold;
+    clear: both;
+    padding: 5px;
+}
+
+.ReviewSessionSidebar__file {
+    float: left;
+    clear: both;
+    padding: 5px;
+    border-radius: 3px;
+    text-decoration: none;
+    &:hover {
+        background: #eee;
+    }
+    &.active {
+        background: #ddd;
+    }
+}
+
+.ReviewSessionSidebar__subtree {
+    margin-left: 20px;
+}
+
+.ReviewSessionDiff {
+    width: 75%;
+    .mixin-vlayout;
+}
+
+.ReviewSessionDiff__header {
+    background: #eee;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.ReviewSessionDiff__content {
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 0.9em;
+    line-height: 1.8;
+}

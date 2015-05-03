@@ -1,7 +1,7 @@
 import React from "react";
-import {Block, Flex} from "jsxstyle";
 import * as API from "./API";
 import {getDisplayPath} from "./Changes";
+import Nav from "./Nav";
 import ReviewSessionSidebar from "./ReviewSessionSidebar";
 import ReviewSessionDiff from "./ReviewSessionDiff";
 
@@ -12,8 +12,7 @@ class ReviewSessionRoute extends React.Component {
     }
 
     componentDidMount() {
-        const id = this.context.router.getCurrentParams().id;
-        API.getReviewSession(id)
+        API.getReviewSession(this.props.params.id)
             .then(r => this.setState({data: r}));
     }
 
@@ -23,11 +22,12 @@ class ReviewSessionRoute extends React.Component {
 
         const {reviewSession, changes} = this.state.data;
         const selectedChange = this._getSelectedChange();
-        return <div>
-            <h1>Review Session #{reviewSession.id}</h1>
-            <p>{reviewSession.sourceBranch} &rarr; {reviewSession.targetBranch}</p>
+        return <div className="ReviewSessionRoute">
+            <Nav>
+                {reviewSession.sourceBranch} &rarr; {reviewSession.targetBranch}
+            </Nav>
 
-            <Flex>
+            <div className="ReviewSessionRoute__content">
                 <ReviewSessionSidebar
                     reviewSession={reviewSession}
                     changes={changes} />
@@ -36,12 +36,12 @@ class ReviewSessionRoute extends React.Component {
                     <ReviewSessionDiff
                         reviewSession={reviewSession}
                         change={selectedChange} />}
-            </Flex>
+            </div>
         </div>;
     }
 
     _getSelectedChange() {
-        const path = this.context.router.getCurrentQuery().path;
+        const path = this.props.query.path;
         if (!path)
             return null;
         for (let change of this.state.data.changes) {
@@ -50,9 +50,5 @@ class ReviewSessionRoute extends React.Component {
         }
     }
 }
-
-ReviewSessionRoute.contextTypes = {
-    router: React.PropTypes.func
-};
 
 export default ReviewSessionRoute;

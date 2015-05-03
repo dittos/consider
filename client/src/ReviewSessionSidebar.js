@@ -1,6 +1,5 @@
 import React from "react";
 import {Link} from "react-router";
-import {Block} from "jsxstyle";
 import {getDisplayPath} from "./Changes";
 
 function getTreeFileStyle(change) {
@@ -11,25 +10,36 @@ function getTreeFileStyle(change) {
 
 class ReviewSessionSidebar extends React.Component {
     render() {
-        return <Block>
-            <h2>Changes</h2>
-            {this._renderTree(this._makeTree(this.props.changes))}
-        </Block>;
+        return <div className="ReviewSessionSidebar">
+            {this._renderTree(this._makeTree(this.props.changes), 0)}
+        </div>;
     }
 
-    _renderTree(tree) {
+    _renderTree(tree, depth) {
         const els = [];
         for (let dir of Object.keys(tree.dirs)) {
             const subtree = tree.dirs[dir];
-            els.push(<Block key={subtree.name}><b>{subtree.name}</b>{this._renderTree(subtree)}</Block>);
+            els.push(<div className="ReviewSessionSidebar__dir" key={subtree.name}>{subtree.name}</div>);
+            els.push(this._renderTree(subtree, depth + 1));
         }
         if (tree.files) {
             for (let file of tree.files) {
                 const path = getDisplayPath(file);
-                els.push(<Block key={path}><Link to="review-session" params={{id: this.props.reviewSession.id}} query={{path: path}} style={getTreeFileStyle(file)}>{path.split('/').pop()}</Link></Block>);
+                els.push(<Link
+                    className="ReviewSessionSidebar__file"
+                    key={path}
+                    to="review-session"
+                    params={{id: this.props.reviewSession.id}}
+                    query={{path: path}}
+                    style={getTreeFileStyle(file)}
+                >
+                    {path.split('/').pop()}
+                </Link>);
             }
         }
-        return <Block marginLeft="10px">{els}</Block>;
+        if (depth > 0)
+            return <div className="ReviewSessionSidebar__subtree">{els}</div>;
+        return els;
     }
 
     _makeTree(changes) {

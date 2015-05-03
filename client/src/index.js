@@ -1,3 +1,4 @@
+import "./common.less";
 import React from "react";
 import Router, {Route, DefaultRoute, Redirect, RouteHandler, Link} from "react-router";
 import * as API from "./API";
@@ -5,7 +6,9 @@ import ReviewSessionRoute from "./ReviewSessionRoute";
 
 class App extends React.Component {
     render() {
-        return <RouteHandler />;
+        return <div className="App">
+            <RouteHandler />
+        </div>;
     }
 }
 
@@ -22,11 +25,11 @@ class ReviewSessionsRoute extends React.Component {
 
     render() {
         const data = this.state.data;
-        return <div>
+        return <div className="ReviewSessionsRoute">
             <h1>Review Sessions</h1>
             <ul>
             {data && data.map(item =>
-                <li><Link to="review-session" params={{id: item.id}}>#{item.id}</Link></li>
+                <li><Link to="review-session" params={{id: item.id}}>{item.sourceBranch}</Link></li>
             )}
             </ul>
         </div>;

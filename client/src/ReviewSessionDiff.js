@@ -29,13 +29,15 @@ class ReviewSessionDiff extends React.Component {
     }
 
     render() {
-        return <div>
-            <h3>{getDisplayPath(this.props.change)}</h3>
-            <pre>
+        return <div className="ReviewSessionDiff">
+            <div className="ReviewSessionDiff__header">
+                {getDisplayPath(this.props.change)}
+            </div>
+            <div className="ReviewSessionDiff__content">
             {diffLines(this.state.oldBlob, this.state.newBlob).map(part =>
                 <div style={getDiffPartStyle(part)}>{part.value}</div>
             )}
-            </pre>
+            </div>
         </div>;
     }
 
