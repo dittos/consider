@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    font-size: 14px;
 }
 
 a {
@@ -31,7 +32,7 @@ a {
 
 .Nav {
     padding: 10px;
-    background: #3f51b5;
+    background: #333;
     color: #fff;
 }
 
@@ -95,6 +96,26 @@ a {
     overflow-y: auto;
     white-space: pre-wrap;
     font-family: monospace;
-    font-size: 0.9em;
-    line-height: 1.8;
+    line-height: 1.6;
+
+    table {
+        border-collapse: collapse;
+    }
+    td {
+        padding: 0 10px;
+    }
+    .n {
+        text-align: right;
+        color: #999;
+        border-right: 1px solid #eee;
+    }
+    .a .n, .r .n {
+        border: 0;
+    }
+    .a {
+        background-color: #EAFFEA;
+    }
+    .r {
+        background-color: #FFECEC;
+    }
 }

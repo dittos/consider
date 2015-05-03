@@ -19,7 +19,7 @@ class ReviewSessionSidebar extends React.Component {
         const els = [];
         for (let dir of Object.keys(tree.dirs)) {
             const subtree = tree.dirs[dir];
-            els.push(<div className="ReviewSessionSidebar__dir" key={subtree.name}>{subtree.name}</div>);
+            els.push(<div className="ReviewSessionSidebar__dir" key={subtree.name}>{subtree.name}/</div>);
             els.push(this._renderTree(subtree, depth + 1));
         }
         if (tree.files) {
