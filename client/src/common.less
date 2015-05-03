@@ -93,6 +93,10 @@ a {
 }
 
 .ReviewSessionDiff__content {
+    .mixin-hlayout;
+}
+
+.ReviewSessionDiff__diff {
     overflow-y: auto;
     white-space: pre-wrap;
     font-family: monospace;
@@ -117,5 +121,21 @@ a {
     }
     .r {
         background-color: #FFECEC;
+    }
+}
+
+.ReviewSessionDiffNav {
+    width: 50px;
+    background-color: #999;
+    position: relative;
+    cursor: pointer;
+}
+
+.ReviewSessionDiffNav__region {
+    &.a {
+        background-color: lightgreen;
+    }
+    &.r {
+        background-color: pink;
     }
 }

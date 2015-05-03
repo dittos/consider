@@ -2,14 +2,13 @@ import React from "react";
 import {diffLines} from "diff";
 import * as API from "./API";
 import {getDisplayPath} from "./Changes";
+import ReviewSessionDiffNav from "./ReviewSessionDiffNav";
 
-function getDiffPartStyle(part) {
-    if (part.added)
-        return {backgroundColor: 'lightgreen'};
-    if (part.removed)
-        return {backgroundColor: 'pink'};
-    return {};
-}
+const RangeType = {
+    ADDED: 'a',
+    REMOVED: 'r',
+    UNCHANGED: ''
+};
 
 function splitLines(value) {
     var retLines = [],
@@ -47,12 +46,16 @@ class ReviewSessionDiff extends React.Component {
     }
 
     render() {
+        var diff = this._renderDiff();
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
             </div>
             <div className="ReviewSessionDiff__content">
-                {this._renderDiff()}
+                {diff.result}
+                <ReviewSessionDiffNav
+                    ranges={diff.ranges}
+                    onScroll={this._scrollTo.bind(this)} />
             </div>
         </div>;
     }
@@ -63,21 +66,28 @@ class ReviewSessionDiff extends React.Component {
         ).then(results => this.setState({
             newBlob: results[0],
             oldBlob: results[1]
-        }));
+        }, () => this._scrollTo(0)));
     }
 
     _renderDiff() {
         const parts = diffLines(this.state.oldBlob, this.state.newBlob);
         const rows = [];
+        const ranges = [];
         let oldLineNumber = 1, newLineNumber = 1;
         for (let i = 0; i < parts.length; i++) {
-            var part = parts[i];
+            let part = parts[i];
             if (part.value === null)
                 continue;
             if (part.added && parts[i + 1].removed)
                 [part, parts[i + 1]] = [parts[i + 1], part];
-            const partStyle = getDiffPartStyle(part);
-            for (let line of splitLines(part.value)) {
+            const lines = splitLines(part.value);
+            ranges.push({
+                type: part.added ? RangeType.ADDED :
+                    part.removed ? RangeType.REMOVED :
+                    RangeType.UNCHANGED,
+                size: lines.length
+            });
+            for (let line of lines) {
                 rows.push(<tr className={part.added ? 'a' : part.removed ? 'r' : ''}>
                     <td className="n">{!part.added && oldLineNumber++}</td>
                     <td className="n">{!part.removed && newLineNumber++}</td>
@@ -85,9 +95,20 @@ class ReviewSessionDiff extends React.Component {
                 </tr>);
             }
         }
-        return <table>
-            <tbody>{rows}</tbody>
-        </table>;
+        return {
+            ranges: ranges,
+            result: <div className="ReviewSessionDiff__diff" ref="scrollArea">
+                <table>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
+        };
+    }
+
+    _scrollTo(pos) {
+        var node = React.findDOMNode(this.refs.scrollArea);
+        var rect = React.findDOMNode(this).getBoundingClientRect();
+        node.scrollTop = Math.max(0, node.scrollHeight * pos - rect.height / 2);
     }
 }
 
