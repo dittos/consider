@@ -1,23 +1,15 @@
 package consider;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
+@Entity
 public class ReviewSession {
-    public Id id;
+    @Id
+    @GeneratedValue
+    public Long id;
+
     public String sourceBranch;
     public String targetBranch;
-
-    public static class Id {
-        private final long id;
-
-        public Id(long id) {
-            this.id = id;
-        }
-
-        @JsonValue
-        @Override
-        public String toString() {
-            return Long.toString(id);
-        }
-    }
 }

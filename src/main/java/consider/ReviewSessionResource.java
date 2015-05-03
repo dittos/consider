@@ -1,5 +1,6 @@
 package consider;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.*;
@@ -33,8 +34,9 @@ public class ReviewSessionResource {
     }
 
     @GET
+    @UnitOfWork
     public GetReviewSessionResponse get(@PathParam("id") long id) throws Exception {
-        ReviewSession session = store.get(new ReviewSession.Id(id));
+        ReviewSession session = store.get(id);
 
         Git git = Git.open(config.repo);
         Repository repo = git.getRepository();

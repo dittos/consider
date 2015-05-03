@@ -1,5 +1,7 @@
 package consider;
 
+import io.dropwizard.hibernate.UnitOfWork;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,6 +19,7 @@ public class ReviewSessionsResource {
     }
 
     @GET
+    @UnitOfWork
     public GetReviewSessionsResponse get() {
         GetReviewSessionsResponse response = new GetReviewSessionsResponse();
         response.data = store.all();
