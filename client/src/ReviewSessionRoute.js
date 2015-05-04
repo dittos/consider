@@ -4,6 +4,7 @@ import {getDisplayPath} from "./Changes";
 import Nav from "./Nav";
 import ReviewSessionSidebar from "./ReviewSessionSidebar";
 import ReviewSessionDiff from "./ReviewSessionDiff";
+import Loading from "./Loading";
 
 class ReviewSessionRoute extends React.Component {
     constructor() {
@@ -18,7 +19,7 @@ class ReviewSessionRoute extends React.Component {
 
     render() {
         if (!this.state.data)
-            return <div>Loading</div>;
+            return <Loading />;
 
         const {reviewSession, changes} = this.state.data;
         const selectedChange = this._getSelectedChange();

@@ -3,6 +3,7 @@ import {diffLines} from "diff";
 import * as API from "./API";
 import {getDisplayPath} from "./Changes";
 import ReviewSessionDiffNav from "./ReviewSessionDiffNav";
+import Loading from "./Loading";
 
 const RangeType = {
     ADDED: 'a',
@@ -75,7 +76,7 @@ class ReviewSessionDiff extends React.Component {
     render() {
         const diff = this.state.diff;
         if (!diff)
-            return <div className="Loading">Loading...</div>;
+            return <Loading />;
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
