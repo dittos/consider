@@ -16,6 +16,8 @@ public class ConsiderModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ReviewSessionStore.class).in(Singleton.class);
+        bind(LineCommentStore.class).in(Singleton.class);
+
         bind(ReviewSessionResource.class);
         bind(ReviewSessionsResource.class);
     }

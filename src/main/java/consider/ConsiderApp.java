@@ -36,7 +36,7 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
         props.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
         props.put("hibernate.hbm2ddl.auto", "create");
         dataSourceFactory.setProperties(props);
-        hibernateBundle = new HibernateBundle<ConsiderConfiguration>(ReviewSession.class) {
+        hibernateBundle = new HibernateBundle<ConsiderConfiguration>(ReviewSession.class, LineComment.class) {
             @Override
             public DataSourceFactory getDataSourceFactory(ConsiderConfiguration configuration) {
                 return dataSourceFactory;

@@ -11,10 +11,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,11 +23,13 @@ import java.util.stream.Collectors;
 public class ReviewSessionResource {
     private final ConsiderConfiguration config;
     private final ReviewSessionStore store;
+    private final LineCommentStore commentStore;
 
     @Inject
-    public ReviewSessionResource(ConsiderConfiguration config, ReviewSessionStore store) {
+    public ReviewSessionResource(ConsiderConfiguration config, ReviewSessionStore store, LineCommentStore commentStore) {
         this.config = config;
         this.store = store;
+        this.commentStore = commentStore;
     }
 
     @GET
@@ -81,6 +80,30 @@ public class ReviewSessionResource {
         } finally {
             git.close();
         }
+    }
+
+    @GET
+    @Path("/blobs/{blobId}/comments")
+    @UnitOfWork
+    public List<LineComment> getCommentsOnBlob(@PathParam("id") long id, @PathParam("blobId") String blobId) throws Exception {
+        ReviewSession reviewSession = store.get(id);
+        return commentStore.find(reviewSession, blobId);
+    }
+
+    @POST
+    @Path("/blobs/{blobId}/comments")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @UnitOfWork
+    public LineComment createCommentOnBlob(@PathParam("id") long id, @PathParam("blobId") String blobId, CreateLineCommentRequest request) throws Exception {
+        ReviewSession reviewSession = store.get(id);
+        LineComment comment = new LineComment();
+        comment.blobId = blobId;
+        comment.reviewSession = reviewSession;
+        comment.lineNumber = request.lineNumber;
+        comment.content = request.content;
+        comment.createdTime = System.currentTimeMillis();
+        commentStore.add(comment);
+        return comment;
     }
 
     private static AbstractTreeIterator readTree(Repository repo, RevCommit commit) throws IOException {
