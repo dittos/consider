@@ -187,6 +187,10 @@ class ReviewSessionDiff extends React.Component {
     }
 
     _addComment({type, oldLineNumber, newLineNumber}) {
+        const content = prompt('Type comment:');
+        if (!content)
+            return;
+
         let blobId, lineNumber;
         if (type === RangeType.ADDED) {
             blobId = this.props.change.newId;
@@ -195,7 +199,6 @@ class ReviewSessionDiff extends React.Component {
             blobId = this.props.change.oldId;
             lineNumber = oldLineNumber;
         }
-        const content = prompt('Type comment:');
         API.createCommentOnBlob(this.props.reviewSession.id, blobId, lineNumber, content).then(comment => {
             if (type === RangeType.ADDED)
                 this.setState({newComments: appendComment(this.state.newComments, newLineNumber, comment)});

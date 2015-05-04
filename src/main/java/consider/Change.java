@@ -8,4 +8,5 @@ public class Change {
     public String newPath;
     public String oldId;
     public String newId;
+    public long commentCount;
 }

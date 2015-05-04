@@ -13,4 +13,11 @@ public class LineCommentStore extends AbstractStore {
                         .and(QLineComment.lineComment.blobId.eq(blobId)))
                 .list(QLineComment.lineComment);
     }
+
+    public long count(ReviewSession reviewSession, String... blobIds) {
+        return query().from(QLineComment.lineComment)
+                .where(QLineComment.lineComment.reviewSession.eq(reviewSession)
+                        .and(QLineComment.lineComment.blobId.in(blobIds)))
+                .count();
+    }
 }

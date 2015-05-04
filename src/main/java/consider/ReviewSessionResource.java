@@ -64,6 +64,7 @@ public class ReviewSessionResource {
             change.oldId = entry.getOldId().name();
             change.newPath = entry.getNewPath();
             change.newId = entry.getNewId().name();
+            change.commentCount = commentStore.count(session, change.oldId, change.newId);
             return change;
         }).collect(Collectors.toList());
         return response;

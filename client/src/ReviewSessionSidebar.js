@@ -34,6 +34,7 @@ class ReviewSessionSidebar extends React.Component {
                     style={getTreeFileStyle(file)}
                 >
                     {path.split('/').pop()}
+                    {file.commentCount > 0 && <span className="comment">[{file.commentCount}]</span>}
                 </Link>);
             }
         }
