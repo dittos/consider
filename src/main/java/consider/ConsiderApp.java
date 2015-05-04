@@ -71,7 +71,7 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
         try {
             ReviewSessionStore store = guiceBundle.getInjector().getInstance(ReviewSessionStore.class);
             ReviewSession reviewSession = new ReviewSession();
-            reviewSession.sourceBranch = "ted/dto-moment";
+            reviewSession.sourceBranch = "newheaders";
             reviewSession.targetBranch = "master";
             store.add(reviewSession);
         } finally {

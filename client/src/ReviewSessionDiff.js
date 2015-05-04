@@ -68,13 +68,14 @@ class ReviewSessionDiff extends React.Component {
     }
 
     componentWillReceiveProps(props) {
+        this.setState({diff: null});
         this._load(props);
     }
 
     render() {
         const diff = this.state.diff;
         if (!diff)
-            return null;
+            return <div className="Loading">Loading...</div>;
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
@@ -96,7 +97,7 @@ class ReviewSessionDiff extends React.Component {
         Promise.all([
             props.change.type != 'DELETE' && props.change.newId,
             props.change.type != 'ADD' && props.change.oldId
-        ].map(id => id ? getBlobWithComments(props.reviewSession.id, id) : Promise.resolve(''))).then(results => {
+        ].map(id => id ? getBlobWithComments(props.reviewSession.id, id) : Promise.resolve({data: '', comments: []}))).then(results => {
             const diff = this._diff(results[1].data, results[0].data);
             let totalLines = diff.rows.length;
             let firstChangePos = 0;

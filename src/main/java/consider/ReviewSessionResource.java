@@ -72,6 +72,7 @@ public class ReviewSessionResource {
 
     @GET
     @Path("/blobs/{blobId}")
+    @Produces(MediaType.TEXT_PLAIN)
     public InputStream getBlob(@PathParam("blobId") String blobId) throws Exception {
         Git git = Git.open(config.repo);
         Repository repo = git.getRepository();
