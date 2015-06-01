@@ -1,5 +1,7 @@
 package consider;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -79,6 +81,20 @@ public class ReviewSessionResource {
         ObjectLoader loader = repo.open(ObjectId.fromString(blobId));
         try {
             return loader.openStream();
+        } finally {
+            git.close();
+        }
+    }
+
+    @GET
+    @Path("/blobs/{blobId}/structure")
+    public JavaStructure getBlobStructure(@PathParam("blobId") String blobId) throws Exception {
+        Git git = Git.open(config.repo);
+        Repository repo = git.getRepository();
+        ObjectLoader loader = repo.open(ObjectId.fromString(blobId));
+        try (InputStream stream = loader.openStream()) {
+            CompilationUnit cu = JavaParser.parse(stream);
+            return JavaStructure.create(cu);
         } finally {
             git.close();
         }

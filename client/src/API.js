@@ -15,6 +15,10 @@ export function getReviewSessionBlob(reviewSessionId, blobId) {
         .then(r => r.text());
 }
 
+export function getBlobStructure(reviewSessionId, blobId) {
+    return fetchJSON(BASE_URL + '/review-sessions/' + reviewSessionId + '/blobs/' + blobId + '/structure');
+}
+
 export function getCommentsOnBlob(reviewSessionId, blobId) {
     return fetchJSON(BASE_URL + '/review-sessions/' + reviewSessionId + '/blobs/' + blobId + '/comments');
 }
