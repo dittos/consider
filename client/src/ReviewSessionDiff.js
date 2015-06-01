@@ -1,5 +1,7 @@
 import React from "react";
 import {diffLines} from "diff";
+import {highlight} from "highlight.js";
+import "highlight.js/styles/default.css";
 import * as API from "./API";
 import {getDisplayPath} from "./Changes";
 import ReviewSessionDiffNav from "./ReviewSessionDiffNav";
@@ -77,6 +79,7 @@ class ReviewSessionDiff extends React.Component {
         const diff = this.state.diff;
         if (!diff)
             return <Loading />;
+        var context = {};
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
@@ -84,7 +87,7 @@ class ReviewSessionDiff extends React.Component {
             <div className="ReviewSessionDiff__content">
                 <div className="ReviewSessionDiff__diff" ref="scrollArea">
                     <table>
-                        <tbody>{diff.rows.map(this._renderDiffLine.bind(this))}</tbody>
+                        <tbody>{diff.rows.map(line => this._renderDiffLine(line, context))}</tbody>
                     </table>
                 </div>
                 <ReviewSessionDiffNav
@@ -151,18 +154,20 @@ class ReviewSessionDiff extends React.Component {
         return {ranges, rows};
     }
 
-    _renderDiffLine(lineObj) {
+    _renderDiffLine(lineObj, context) {
         let comments;
         if (lineObj.oldLineNumber)
             comments = this.state.oldComments[lineObj.oldLineNumber];
         else
             comments = this.state.newComments[lineObj.newLineNumber];
         const key = lineObj.oldLineNumber + ':' + lineObj.newLineNumber;
+        const highlightResult = highlight('java', lineObj.line, false, context.highlightStack);
+        context.highlightStack = highlightResult.top;
         const rows = [<tr className={lineObj.type} key={key}>
             <td className="g" onClick={this._addComment.bind(this, lineObj)}>+</td>
             <td className="n">{lineObj.oldLineNumber}</td>
             <td className="n">{lineObj.newLineNumber}</td>
-            <td className="l">{lineObj.line}</td>
+            <td className="l" dangerouslySetInnerHTML={{__html: highlightResult.value}} />
         </tr>];
         if (comments) {
             for (let comment of comments) {
