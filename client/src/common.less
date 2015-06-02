@@ -103,6 +103,28 @@ a {
     font-weight: bold;
 }
 
+.ReviewSessionDiff__structure_dropdown {
+    float: right;
+    position: relative;
+
+    .structure_dropdown_btn {
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .DiffStructure {
+        position: absolute;
+        top: 27px;
+        right: -10px;
+        width: 300px;
+        max-height: 600px;
+        overflow: auto;
+        z-index: 100;
+        font-weight: normal;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, .25);
+    }
+}
+
 .ReviewSessionDiff__content {
     .mixin-hlayout;
 }
@@ -170,5 +192,73 @@ a {
     }
     &.r {
         background-color: pink;
+    }
+}
+
+.DiffStructure {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+
+    li {
+        padding: 5px 0;
+    }
+}
+
+.DiffStructure__header {
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.DiffStructure__types {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.DiffStructure__type {
+    .typeName {
+        display: block;
+        padding-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+}
+
+.DiffStructure__methods {
+    list-style: none;
+    margin: 0;
+    padding-left: 10px;
+}
+
+.DiffStructure__method {
+    white-space: nowrap;
+    opacity: 0.3;
+
+    &.c, &.a, &.r {
+        opacity: 1.0;
+    }
+
+    .removed {
+        color: red;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    .added {
+        color: lightgreen;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    .changed {
+        color: orange;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .returnType {
+        margin-left: 5px;
+        color: #999;
+        font-weight: bold;
     }
 }

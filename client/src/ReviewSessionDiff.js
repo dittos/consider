@@ -5,6 +5,7 @@ import "highlight.js/styles/default.css";
 import * as API from "./API";
 import {getDisplayPath} from "./Changes";
 import ReviewSessionDiffNav from "./ReviewSessionDiffNav";
+import DiffStructure from "./DiffStructure";
 import Loading from "./Loading";
 
 const RangeType = {
@@ -63,7 +64,10 @@ function appendComment(comments, lineNumber, comment) {
 class ReviewSessionDiff extends React.Component {
     constructor() {
         super();
-        this.state = {diff: null};
+        this.state = {
+            diff: null,
+            showStructure: false
+        };
     }
 
     componentDidMount() {
@@ -83,6 +87,14 @@ class ReviewSessionDiff extends React.Component {
         return <div className="ReviewSessionDiff">
             <div className="ReviewSessionDiff__header">
                 {getDisplayPath(this.props.change)}
+
+                <div className="ReviewSessionDiff__structure_dropdown">
+                    <span className="structure_dropdown_btn" onClick={() => this.setState({showStructure: !this.state.showStructure})}>Structure</span>
+                    {this.state.showStructure && <DiffStructure
+                        ranges={diff.ranges}
+                        change={this.props.change}
+                        reviewSession={this.props.reviewSession} />}
+                </div>
             </div>
             <div className="ReviewSessionDiff__content">
                 <div className="ReviewSessionDiff__diff" ref="scrollArea">
