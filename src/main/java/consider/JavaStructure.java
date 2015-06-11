@@ -2,10 +2,7 @@ package consider;
 
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.ModifierSet;
-import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,9 +34,13 @@ public class JavaStructure {
                         .map(member -> TypeItem.create((TypeDeclaration) member))
                         .collect(Collectors.toList());
                 item.methods = typeDeclaration.getMembers().stream()
+                        .filter(member -> member != null && member instanceof ConstructorDeclaration)
+                        .map(member -> MethodItem.create((ConstructorDeclaration) member))
+                        .collect(Collectors.toList());
+                item.methods.addAll(typeDeclaration.getMembers().stream()
                         .filter(member -> member != null && member instanceof MethodDeclaration)
                         .map(member -> MethodItem.create((MethodDeclaration) member))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
             }
             return item;
         }
@@ -58,6 +59,27 @@ public class JavaStructure {
             item.privacy = ModifierSet.getAccessSpecifier(methodDecl.getModifiers());
             item.name = methodDecl.getName();
             item.returnType = methodDecl.getType().toStringWithoutComments();
+            String params = "";
+            boolean isFirst = true;
+            for (Parameter param : methodDecl.getParameters()) {
+                if (!isFirst)
+                    params += ", ";
+                isFirst = false;
+                params += param.getType().toStringWithoutComments();
+                if (param.isVarArgs())
+                    params += "...";
+            }
+            item.params = params;
+            item.beginLineNumber = methodDecl.getBeginLine();
+            item.endLineNumber = methodDecl.getEndLine();
+            return item;
+        }
+
+        public static MethodItem create(ConstructorDeclaration methodDecl) {
+            MethodItem item = new MethodItem();
+            item.isStatic = ModifierSet.isStatic(methodDecl.getModifiers());
+            item.privacy = ModifierSet.getAccessSpecifier(methodDecl.getModifiers());
+            item.name = methodDecl.getName();
             String params = "";
             boolean isFirst = true;
             for (Parameter param : methodDecl.getParameters()) {

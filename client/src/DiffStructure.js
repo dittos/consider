@@ -32,11 +32,15 @@ function makeMethodKey(method) {
 }
 
 function diffTypes(changeRanges, oldType, newType) {
-    // TODO: mark added/removed type's subitems as added/removed
-    // TODO: subTypes!
     const oldIndex = Object.create(null);
     const newIndex = Object.create(null);
+    let changed = false;
+
     const delta = diffStructures(changeRanges, [oldType, newType]);
+    if (delta.types.length > 0) {
+        changed = true;
+    }
+
     delta.methods = [];
     for (let oldMethod of oldType.methods) {
         oldIndex[makeMethodKey(oldMethod)] = oldMethod;
@@ -45,7 +49,6 @@ function diffTypes(changeRanges, oldType, newType) {
         newIndex[makeMethodKey(newMethod)] = newMethod;
     }
 
-    let changed = false;
     for (let newMethod of newType.methods) {
         if (!oldIndex[makeMethodKey(newMethod)]) {
             changed = true;
@@ -90,7 +93,14 @@ function diffStructures(changeRanges, structures) {
         if (!oldIndex[newType.name]) {
             delta.types.push({
                 type: ChangeType.ADDED,
-                newItem: newType
+                newItem: newType,
+                delta: {
+                    types: [],
+                    methods: newType.methods.map(m => ({
+                        type: ChangeType.ADDED,
+                        newItem: m
+                    }))
+                }
             });
             continue;
         }
@@ -98,7 +108,14 @@ function diffStructures(changeRanges, structures) {
         if (!itemDelta)
             delta.types.push({
                 type: ChangeType.UNCHANGED,
-                newItem: newType
+                newItem: newType,
+                delta: {
+                    types: [],
+                    methods: newType.methods.map(m => ({
+                        type: ChangeType.UNCHANGED,
+                        newItem: m
+                    }))
+                }
             });
         else
             delta.types.push({
@@ -111,7 +128,14 @@ function diffStructures(changeRanges, structures) {
         if (!newIndex[oldType.name])
             delta.types.push({
                 type: ChangeType.REMOVED,
-                oldItem: oldType
+                oldItem: oldType,
+                delta: {
+                    types: [],
+                    methods: oldType.methods.map(m => ({
+                        type: ChangeType.REMOVED,
+                        oldItem: m
+                    }))
+                }
             });
     }
 
@@ -155,33 +179,42 @@ class DiffStructure extends React.Component {
     }
 
     _renderType(type) {
-        let methods;
+        let methods, types;
         if (type.delta) {
             methods = type.delta.methods;
-            if (this.state.hideUnchanged)
+            types = type.delta.types;
+            if (this.state.hideUnchanged) {
                 methods = methods.filter(t => Boolean(t.type));
+                types = types.filter(t => Boolean(t.type));
+            }
         }
 
         return <li className="DiffStructure__type">
-            <span className="typeName">{type.newItem.name}</span>
+            <span className="typeName" onClick={() => this.props.onNavigateTo(type)}>
+                {type.type === 'r' && <span className="removed">D</span>}
+                {type.type === 'a' && <span className="added">A</span>}
+                {type.type === 'c' && <span className="changed">C</span>}
+                {type.newItem ? type.newItem.name : type.oldItem.name}
+            </span>
             {methods &&
                 <ul className="DiffStructure__methods">
                     {methods.map(this._renderMethod.bind(this))}
                 </ul>}
-            {type.delta && type.delta.types.map(this._renderType.bind(this))}
+            {types && types.map(this._renderType.bind(this))}
         </li>;
     }
 
     _renderMethod(method) {
         const item = method.newItem || method.oldItem;
-        return <li className={'DiffStructure__method ' + method.type}>
+        return <li className={'DiffStructure__method ' + method.type}
+                onClick={() => this.props.onNavigateTo(method)}>
             {method.type === 'r' && <span className="removed">D</span>}
             {method.type === 'a' && <span className="added">A</span>}
             {method.type === 'c' && <span className="changed">C</span>}
             <span className="hljs-title">{item.name}</span>
             ({item.params})
-            {item.returnType != 'void' &&
-                <span className="returnType">{item.returnType}</span>}
+            {item.returnType && item.returnType != 'void' &&
+                <span className="returnType">&rarr; {item.returnType}</span>}
         </li>;
     }
 
@@ -190,7 +223,8 @@ class DiffStructure extends React.Component {
             props.change.type != 'ADD' && props.change.oldId,
             props.change.type != 'DELETE' && props.change.newId
         ].map(id => id ? API.getBlobStructure(props.reviewSession.id, id) : Promise.resolve({types: []}))).then(results => {
-            this.setState({diff: diffStructures(props.ranges, results)});
+            const diff =  diffStructures(props.ranges, results);
+            this.setState({diff});
         });
     }
 }

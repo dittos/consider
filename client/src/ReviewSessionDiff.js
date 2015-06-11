@@ -93,7 +93,8 @@ class ReviewSessionDiff extends React.Component {
                     {this.state.showStructure && <DiffStructure
                         ranges={diff.ranges}
                         change={this.props.change}
-                        reviewSession={this.props.reviewSession} />}
+                        reviewSession={this.props.reviewSession}
+                        onNavigateTo={this._onNavigateTo.bind(this)} />}
                 </div>
             </div>
             <div className="ReviewSessionDiff__content">
@@ -135,7 +136,7 @@ class ReviewSessionDiff extends React.Component {
         const parts = diffLines(oldBlob, newBlob);
         const rows = [];
         const ranges = [];
-        let oldLineNumber = 1, newLineNumber = 1;
+        let oldLineNumber = 0, newLineNumber = 0;
         for (let i = 0; i < parts.length; i++) {
             let part = parts[i];
             if (part.value === null)
@@ -202,7 +203,41 @@ class ReviewSessionDiff extends React.Component {
     _scrollTo(pos) {
         var node = React.findDOMNode(this.refs.scrollArea);
         var rect = React.findDOMNode(this).getBoundingClientRect();
-        node.scrollTop = Math.max(0, node.scrollHeight * pos - rect.height / 2);
+        node.scrollTop = Math.max(0, node.scrollHeight * pos - rect.height / 3);
+    }
+
+    _onNavigateTo(delta) {
+        // 1) delta.type === 'r'
+        // 2) delta.type === 'a'
+        const item = delta.newItem || delta.oldItem;
+        const line = item.lineNumber || item.beginLineNumber;
+        let result = 0;
+        if (delta.type === 'r') {
+            let oldLine = 0, totalLine = 0;
+            for (let range of this.state.diff.ranges) {
+                if (range.type !== RangeType.ADDED) {
+                    if (oldLine < line && line <= oldLine + range.size) {
+                        result = totalLine + (line - oldLine);
+                        break;
+                    }
+                    oldLine += range.size;
+                }
+                totalLine += range.size;
+            }
+        } else {
+            let newLine = 0, totalLine = 0;
+            for (let range of this.state.diff.ranges) {
+                if (range.type !== RangeType.REMOVED) {
+                    if (newLine < line && line <= newLine + range.size) {
+                        result = totalLine + (line - newLine);
+                        break;
+                    }
+                    newLine += range.size;
+                }
+                totalLine += range.size;
+            }
+        }
+        this._scrollTo(result / this.state.diff.rows.length);
     }
 
     _addComment({type, oldLineNumber, newLineNumber}) {

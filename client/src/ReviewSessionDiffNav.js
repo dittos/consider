@@ -13,12 +13,20 @@ class ReviewSessionDiffNav extends React.Component {
                 style={{height: (range.size / totalLines * 100) + '%'}} />);
         }
         return <div className="ReviewSessionDiffNav"
-            onClick={this._onClick.bind(this)}>
+            onClick={this._onClick.bind(this)}
+            onMouseMove={this._onMouseMove.bind(this)}>
             {regions}
         </div>;
     }
 
     _onClick(event) {
+        var rect = React.findDOMNode(this).getBoundingClientRect();
+        this.props.onScroll((event.clientY - rect.y) / rect.height);
+    }
+
+    _onMouseMove(event) {
+        if (event.buttons !== 1)
+            return;
         var rect = React.findDOMNode(this).getBoundingClientRect();
         this.props.onScroll((event.clientY - rect.y) / rect.height);
     }

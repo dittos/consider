@@ -220,24 +220,13 @@ a {
 .DiffStructure__type {
     .typeName {
         display: block;
-        padding-bottom: 5px;
+        padding: 3px 0;
         font-weight: bold;
         color: #333;
-    }
-}
-
-.DiffStructure__methods {
-    list-style: none;
-    margin: 0;
-    padding-left: 10px;
-}
-
-.DiffStructure__method {
-    white-space: nowrap;
-    opacity: 0.3;
-
-    &.c, &.a, &.r {
-        opacity: 1.0;
+        cursor: pointer;
+        &:hover {
+            background-color: #eee;
+        }
     }
 
     .removed {
@@ -254,6 +243,25 @@ a {
         color: orange;
         font-weight: bold;
         margin-right: 5px;
+    }
+}
+
+.DiffStructure__methods {
+    list-style: none;
+    margin: 0;
+    padding-left: 10px;
+}
+
+.DiffStructure__method {
+    white-space: nowrap;
+    opacity: 0.3;
+    cursor: pointer;
+    &:hover {
+        background-color: #eee;
+    }
+
+    &.c, &.a, &.r {
+        opacity: 1.0;
     }
 
     .returnType {
