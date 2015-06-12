@@ -200,7 +200,7 @@ class DiffStructure extends React.Component {
                 <ul className="DiffStructure__methods">
                     {methods.map(this._renderMethod.bind(this))}
                 </ul>}
-            {types && types.map(this._renderType.bind(this))}
+            {types && <ul className="DiffStructure__types">{types.map(this._renderType.bind(this))}</ul>}
         </li>;
     }
 
@@ -223,7 +223,7 @@ class DiffStructure extends React.Component {
             props.change.type != 'ADD' && props.change.oldId,
             props.change.type != 'DELETE' && props.change.newId
         ].map(id => id ? API.getBlobStructure(props.reviewSession.id, id) : Promise.resolve({types: []}))).then(results => {
-            const diff =  diffStructures(props.ranges, results);
+            const diff = diffStructures(props.ranges, results);
             this.setState({diff});
         });
     }

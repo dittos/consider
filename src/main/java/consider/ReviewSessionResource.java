@@ -41,7 +41,7 @@ public class ReviewSessionResource {
 
         Git git = Git.open(config.repo);
         Repository repo = git.getRepository();
-        Ref sourceBranch = repo.getRef("refs/heads/" + session.sourceBranch);
+        Ref sourceBranch = repo.getRef("refs/remotes/source/" + session.sourceBranch);
         Ref targetBranch = repo.getRef("refs/heads/" + session.targetBranch);
 
         RevWalk walk = new RevWalk(repo);

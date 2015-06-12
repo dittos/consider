@@ -75,7 +75,7 @@ class ReviewSessionDiff extends React.Component {
     }
 
     componentWillReceiveProps(props) {
-        this.setState({diff: null});
+        this.setState({diff: null, showStructure: false});
         this._load(props);
     }
 
