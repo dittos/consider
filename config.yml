@@ -11,3 +11,6 @@ server:
     type: simple
     rootPath: /api/*
     applicationContextPath: /
+
+logging:
+    level: OFF

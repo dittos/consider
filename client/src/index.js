@@ -40,7 +40,7 @@ const routes = (
     <Route name="app" path="/" handler={App}>
         <Route name="review-sessions" path="/review-sessions" handler={ReviewSessionsRoute} />
         <Route name="review-session" path="/review-sessions/:id" handler={ReviewSessionRoute} />
-        <Redirect from="" to="review-sessions" />
+        <Redirect from="" to="review-session" params={{id: '1'}} />
     </Route>
 );
 

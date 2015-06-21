@@ -6,11 +6,13 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.service.PullRequestService;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ProgressMonitor;
@@ -22,7 +24,9 @@ import org.hibernate.context.internal.ManagedSessionContext;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.EnumSet;
 
 public class ConsiderApp extends Application<ConsiderConfiguration> {
@@ -55,6 +59,15 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
 
     @Override
     public void run(ConsiderConfiguration configuration, Environment environment) throws Exception {
+        environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener() {
+            @Override
+            public void serverStarted(Server server) {
+                try {
+                    Desktop.getDesktop().browse(server.getURI());
+                } catch (IOException e) {}
+            }
+        });
+
         // Enable CORS headers
         final FilterRegistration.Dynamic cors =
                 environment.servlets().addFilter("CORS", CrossOriginFilter.class);
@@ -75,18 +88,13 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
         int prId = Integer.parseInt(System.getenv("CONSIDER_PR_ID"));
         PullRequestService prs = new PullRequestService();
         PullRequest pr = prs.getPullRequest(RepositoryId.createFromId(id), prId);
-        System.out.println(pr.getBase().getRepo().getCloneUrl());
-        System.out.println(pr.getHead().getRepo().getCloneUrl());
 
         File file = Files.createTempDir();
-        System.out.println(file);
         Git.cloneRepository()
                 .setDirectory(file)
                 .setURI(pr.getBase().getRepo().getCloneUrl())
                 .setBranch(pr.getBase().getRef())
                 .setProgressMonitor(new ProgressMonitor() {
-                    private String title;
-
                     @Override
                     public void start(int totalTasks) {
 
@@ -94,17 +102,15 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
 
                     @Override
                     public void beginTask(String title, int totalWork) {
-                        this.title = title;
+                        System.out.println(title);
                     }
 
                     @Override
                     public void update(int completed) {
-                        System.out.print("\r" + title + ": " + completed);
                     }
 
                     @Override
                     public void endTask() {
-                        System.out.println();
                     }
 
                     @Override
