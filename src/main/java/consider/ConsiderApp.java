@@ -3,6 +3,7 @@ package consider;
 import com.google.common.io.Files;
 import com.hubspot.dropwizard.guice.GuiceBundle;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -23,8 +24,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.io.File;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ConsiderApp extends Application<ConsiderConfiguration> {
     private GuiceBundle<ConsiderConfiguration> guiceBundle;
@@ -37,18 +36,10 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
 
     @Override
     public void initialize(Bootstrap<ConsiderConfiguration> bootstrap) {
-        dataSourceFactory = new DataSourceFactory();
-        dataSourceFactory.setDriverClass("org.hsqldb.jdbc.JDBCDriver");
-        dataSourceFactory.setUrl("jdbc:hsqldb:mem:mymemdb");
-        dataSourceFactory.setValidationQuery("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES");
-        Map<String, String> props = new HashMap<>();
-        props.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
-        props.put("hibernate.hbm2ddl.auto", "create");
-        dataSourceFactory.setProperties(props);
         hibernateBundle = new HibernateBundle<ConsiderConfiguration>(ReviewSession.class, LineComment.class) {
             @Override
             public DataSourceFactory getDataSourceFactory(ConsiderConfiguration configuration) {
-                return dataSourceFactory;
+                return configuration.database;
             }
         };
         bootstrap.addBundle(hibernateBundle);
@@ -58,6 +49,8 @@ public class ConsiderApp extends Application<ConsiderConfiguration> {
                 .setConfigClass(ConsiderConfiguration.class)
                 .build();
         bootstrap.addBundle(guiceBundle);
+
+        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html"));
     }
 
     @Override

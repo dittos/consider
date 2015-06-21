@@ -1,6 +1,6 @@
 import "whatwg-fetch";
 
-const BASE_URL = 'http://127.0.0.1:8080';
+const BASE_URL = '/api';
 
 export function getReviewSessions() {
     return fetchJSON(BASE_URL + '/review-sessions');
