@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-![https://raw.githubusercontent.com/dittos/consider/master/screenshot.png](screenshot)
+![Screenshot](https://raw.githubusercontent.com/dittos/consider/master/screenshot.png)
 
 ## Build
 
