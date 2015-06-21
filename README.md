@@ -1,5 +1,9 @@
 # Consider
 
+## Screenshot
+
+![https://raw.githubusercontent.com/dittos/consider/master/screenshot.png](screenshot)
+
 ## Build
 
     cd client
